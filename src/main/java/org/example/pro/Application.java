@@ -13,5 +13,9 @@ public class Application {
 
 
 
+<<<<<<< HEAD
 
+=======
+    int x;
+>>>>>>> 2a8a01f25f505416bef631242b60de30c2bc23ab
 }
