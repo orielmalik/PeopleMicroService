@@ -24,16 +24,30 @@ public class PeopleController {
         return this.peopleService.create(boundary);
     }
 
-    /*  @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<PeopleBoundary> getAllByCountry(@RequestParam("criteria") String criteria,
-                                                @RequestParam("countryCode") String countryCode) {
-        return this.peopleService.getPeopleByCountry(countryCode,criteria);
-    }*/
-    @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<PeopleBoundary> getAll() {
-        return this.peopleService.getAll();
-    }
 
+
+
+    @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<PeopleBoundary> getAllByCriteria(@RequestParam(value = "criteria",required = false)  String criteria,
+                                       @RequestParam(value = "value",required = false) String value) {
+        switch (criteria)
+        {
+            case "country":
+                return this.peopleService.getPeopleByCountry(value);
+            case "last":
+                return  this.peopleService.getByLastName(value);
+            case "maximumAge":
+                return  this.peopleService.getPeopleByMaximumAge(Integer.parseInt(value));
+            case "minimumAge":
+                return  this.peopleService.getPeopleByMinimumAge(Integer.parseInt(value));
+
+            case "email":
+                return this.peopleService.getByEmailOnly(value);
+
+            case null, default:return  this.peopleService.getAll();
+        }
+
+    }
     @DeleteMapping
     public Mono<Void> delete(){
         return this.peopleService
@@ -44,11 +58,22 @@ public class PeopleController {
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Mono<Void>updatePeople( @RequestParam ("email") String email,
-                                  @RequestParam ("password") String password,
-                                  @RequestBody PeopleBoundary update
+                                   @RequestParam ("password") String password,
+                                   @RequestBody PeopleBoundary update
     )
     {
         return  this.peopleService.update(email,password,update);
     }
+
+
+
+@GetMapping
+        (produces = {MediaType.APPLICATION_JSON_VALUE},path = {"/{email}"})
+    public  Mono<PeopleBoundary>getByPassword(@PathVariable("email") String email,
+                                              @RequestParam ("password")String password)
+{
+    return  this.peopleService.getByEmail(email,password);//with password match
+}
+
 
 }
