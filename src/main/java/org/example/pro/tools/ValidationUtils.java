@@ -1,4 +1,8 @@
 package org.example.pro.tools;
+import java.time.format.DateTimeFormatter;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 public class ValidationUtils {
 
@@ -12,7 +16,13 @@ public class ValidationUtils {
         return e.matches(numeric);
     }
 
+    public static  String toBirthdateFormat(LocalDate date)
+    {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        String formattedDate = date.format(formatter);
+        return  (formattedDate);
 
+    }
     public static boolean hasTwoUppercaseLetters(String input) {
         int uppercaseCount = 0;
 
@@ -27,5 +37,30 @@ public class ValidationUtils {
         }
 
         return uppercaseCount == 2;
+    }
+
+
+    public static boolean isValidLocalDateFormat(String dateString) {
+        try {
+            // Parse the String with a specific format pattern (replace with your desired format)
+            LocalDate.parse(dateString.replace(" ",""), DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+
+
+    public static LocalDate fromStringToLocalDatte(String dateString )
+    {
+        LocalDate parsedDate =null;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        // Parse the String into LocalDate object
+        //when we call this function we guess string at format
+
+        parsedDate = LocalDate.parse(dateString, formatter);
+
+        return parsedDate;
     }
 }

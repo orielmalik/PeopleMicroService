@@ -41,6 +41,16 @@ public class PeopleServiceImplementation implements PeopleService {
                     } else if (!ValidationUtils.hasTwoUppercaseLetters(boundary.getAddress().getCountry())) {
                         return Mono.error(new BadRequest400("ERROR WITH COUNTRY NAME"));
                     }
+                    else if(!ValidationUtils.isValidLocalDateFormat(boundary.getBirthdate()))
+                    {
+                        return Mono.error(new BadRequest400("ERROR WITH DATE FORMAT"));
+
+                    }
+                    else if(boundary.getPassword().length()<5)
+                    {
+                        return Mono.error(new BadRequest400("PASSWORD LENGTH <5"));
+
+                    }
                     // Save the entity and return the saved entity
                     return this.peopleCrud.save((PeopleEntity) peopleEntity); // Ensure type casting
                 })
@@ -61,15 +71,25 @@ public class PeopleServiceImplementation implements PeopleService {
         return this.peopleCrud.deleteAll();
     }
 
-//put
+//put-we dont throw error everyTime
     @Override
     public Mono<Void> update( String email, String password, PeopleBoundary peopleBoundary) {
         return this.peopleCrud.findById(email)
                 .flatMap(peopleEntity -> {
-                    if(!peopleEntity.getPassword().equals(password))
-                    {
+                    if(!peopleEntity.getPassword().equals(password)) {
                         return Mono.error(new BadRequest400("password does not match"));
-                    }else {
+
+                    }
+                    else if(!ValidationUtils.isValidLocalDateFormat(peopleBoundary.getBirthdate()))
+                    {
+                        return Mono.error(new BadRequest400("birthdate  not at format"));
+                    }
+                    else if(peopleBoundary.getPassword().length()<5)
+                    {
+                        return Mono.error(new BadRequest400("PASSWORD LENGTH <5"));
+
+                    }
+                    else {
                         peopleBoundary.setEmail(peopleEntity.getEmail());//cant change email
 
                         if(!ValidationUtils.hasTwoUppercaseLetters(peopleBoundary.getAddress().getCountry())){
@@ -114,10 +134,10 @@ public class PeopleServiceImplementation implements PeopleService {
                 .flatMap(peopleEntity -> {
                     if (peopleEntity.getPassword().equals(password)) {
                         // Mask the password before returning
-                        peopleEntity.setPassword("*");
+                        peopleEntity.setPassword("***");
                         return Mono.just(new PeopleBoundary(peopleEntity));
                     } else {
-                        return Mono.error(new BadRequest400("ERROR WITH EMAIL"));
+                        return Mono.error(new BadRequest400("ERROR "));
                     }
                 }).log();
 
@@ -130,7 +150,7 @@ public class PeopleServiceImplementation implements PeopleService {
         return peopleCrud.findByBirthdateBetween(minDate, maxDate)
                 .map(peopleEntity -> {
                     PeopleBoundary peopleBoundary = new PeopleBoundary(peopleEntity);
-                    peopleBoundary.setPassword(""); // Mask the password
+                    peopleBoundary.setPassword("***********"); // Mask the password
                     return peopleBoundary;
                 });
     }
@@ -142,13 +162,16 @@ public class PeopleServiceImplementation implements PeopleService {
     @Override
     public Flux<PeopleBoundary> getByEmailOnly(String value) {
         if (!ValidationUtils.isEmailFormat(value)) {
-            return Flux.error(new BadRequest400("ERROR WITH EMAIL VALIDATION"));
+            return Flux.error(new BadRequest400("ERROR "));
         }
-        return this.peopleCrud.findByEmail(value).map(peopleEntity ->
-        {peopleEntity.setPassword("****");
-            return new PeopleBoundary(peopleEntity);
-       }).log();
-         }
+        return this.peopleCrud.findById(value)
+                .map(peopleEntity ->
+                {peopleEntity.setPassword("*****");return new PeopleBoundary((peopleEntity));})
+                .flux()
+                .log();
+
+
+    }
     @Override
     public Flux<PeopleBoundary> getPeopleByMinimumAge(int minimumAge) {
         if (minimumAge >= 150) {

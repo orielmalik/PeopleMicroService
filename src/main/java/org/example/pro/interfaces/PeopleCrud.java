@@ -18,7 +18,6 @@ public  interface PeopleCrud extends ReactiveMongoRepository<PeopleEntity,String
 
     Flux<PeopleEntity> findByBirthdateBetween(LocalDate minDate, LocalDate maxDate);
 
-    Flux<PeopleEntity> findByEmail(String email);
 }
 
 

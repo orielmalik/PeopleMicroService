@@ -13,7 +13,7 @@ public class Address {
         this.zip=zip;
     }
 
-
+public Address(){}
 
     public String getCity() {
         return city;

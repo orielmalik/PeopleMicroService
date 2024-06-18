@@ -6,7 +6,7 @@ public class Name {
     private String first;
     private String last;
 
-
+public Name(){}
     public Name(String first,String last)
     {
         this.first=first;
