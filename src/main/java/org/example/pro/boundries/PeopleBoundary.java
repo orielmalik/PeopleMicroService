@@ -23,6 +23,7 @@ public class PeopleBoundary {
 
 
 
+
     public PeopleBoundary(PeopleEntity entity) {
         this.setBirthdate(ValidationUtils.toBirthdateFormat(entity.getBirthdate()));
         this.setEmail(entity.getEmail());
@@ -63,8 +64,9 @@ public class PeopleBoundary {
         return email;
     }
 
-    public void setEmail(String email) {
+    public PeopleBoundary setEmail(String email) {
         this.email = email;
+        return  this;
     }
 
     public Address getAddress() {
