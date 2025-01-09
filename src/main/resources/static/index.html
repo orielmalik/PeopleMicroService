@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Application</title>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/dist/stomp.min.js"></script>
+  <script>
+    window.onload = function() {
+      console.log("Connecting to WebSocket...");
+      connect();
+    };
+
+  </script>
+</head>
+<body>
+<input id="name" type="text" placeholder="Enter your name" />
+<button onclick="sendName()">Send</button>
+<table id="response"></table>
+
+<script>
+  var stompClient = null;
+
+
+
+  function sendName() {
+    if (stompClient && stompClient.connected) {
+      var name = document.getElementById('name').value;
+      stompClient.send("/app/hello", {}, JSON.stringify({'sender': name, 'content': ''}));
+    } else {
+      console.error("WebSocket connection is not established.");
+      alert("Unable to send message. WebSocket connection not established.");
+    }
+  }
+  function connect() {
+    var socket = new SockJS('http://localhost:8081/ws');
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, function (frame) {
+      console.log('Connected: ' + frame);
+      stompClient.subscribe('/topic/public', function (message) {
+        console.log(JSON.parse(message.body).content);
+      });
+    });
+  }
+
+
+  function showGreeting(message) {
+    var response = document.getElementById('response');
+    response.innerHTML += "<tr><td>" + message + "</td></tr>";
+  }
+
+  stompClient.subscribe('/topic/public', function (message) {
+    var messageObj = JSON.parse(message.body);
+    showGreeting(messageObj.sender + ": " + messageObj.content);
+  });
+
+  // Auto-connect on load
+  window.onload = connect;
+</script>
+</body>
+</html>
